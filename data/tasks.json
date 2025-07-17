@@ -1,0 +1,10 @@
+{
+    "monitorar_ia": {
+        "agent": "monitor_web",
+        "prompt": "Use a web_search tool para buscar por 'inteligência artificial últimas notícias'. Se encontrar algo relevante, escreva os 3 primeiros links no arquivo 'novas_noticias.txt'."
+    },
+    "ultimas_noticias_gemini": {
+        "agent": "meu_agente",
+        "prompt": "Use a ferramenta web_search para encontrar as últimas notícias sobre Gemini AI e resuma-as."
+    }
+}

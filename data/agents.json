@@ -1,0 +1,10 @@
+{
+    "monitor_web": {
+        "llm_provider": "google",
+        "tools": []
+    },
+    "meu_agente": {
+        "llm_provider": "google",
+        "tools": []
+    }
+}
