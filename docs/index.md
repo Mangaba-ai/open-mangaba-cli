@@ -109,18 +109,73 @@ python -m src.main run analisar_dados --verbose
 
 ## 🔧 Configuração Detalhada
 
-### 🔑 Obtendo Chaves de API
+### 🔑 Configuração de Chaves de API
 
-#### Google Gemini (Recomendado - Gratuito)
-1. Acesse [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Clique em "Create API Key"
-3. Copie sua chave
-4. Configure: `python -m src.main config set GOOGLE_API_KEY sua_chave`
+O sistema utiliza um arquivo de configuração JSON localizado em `~/.mangaba/config.json` para armazenar as chaves das APIs de forma segura.
 
-#### OpenAI (Pago)
-1. Acesse [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Crie uma nova chave
-3. Configure: `python -m src.main config set OPENAI_API_KEY sua_chave`
+#### Google Gemini API (Recomendado)
+1. **Obter a chave:** Acesse [Google AI Studio](https://makersuite.google.com/app/apikey) e crie uma nova chave de API
+2. **Configurar no sistema:**
+```bash
+python -m src.main config set GOOGLE_API_KEY sua_chave_aqui
+```
+3. **Verificar configuração:**
+```bash
+python -m src.main config get GOOGLE_API_KEY
+```
+
+#### OpenAI API
+1. **Obter a chave:** Acesse [OpenAI API Keys](https://platform.openai.com/api-keys) e crie uma nova chave de API
+2. **Configurar no sistema:**
+```bash
+python -m src.main config set OPENAI_API_KEY sua_chave_aqui
+```
+3. **Verificar configuração:**
+```bash
+python -m src.main config get OPENAI_API_KEY
+```
+
+#### Como Funciona a Configuração
+
+**Localização do arquivo:** `~/.mangaba/config.json`
+
+**Estrutura do arquivo:**
+```json
+{
+  "GOOGLE_API_KEY": "sua_chave_google_aqui",
+  "OPENAI_API_KEY": "sua_chave_openai_aqui"
+}
+```
+
+**Validação automática:**
+- ✅ O sistema verifica se a chave está configurada antes da execução
+- ✅ Exibe mensagens de erro claras se a configuração estiver ausente
+- ✅ Suporta múltiplos provedores simultaneamente
+- ✅ Cada agente pode usar um provedor diferente
+
+#### Detalhes Técnicos da Implementação
+
+**Google Gemini:**
+- Utiliza o SDK `google.generativeai`
+- Modelo padrão: `gemini-2.5-flash`
+- Configuração via `genai.configure(api_key=api_key)`
+- Suporte a ferramentas via prompt enhancement
+
+**OpenAI:**
+- Utiliza o SDK oficial `openai`
+- Modelo padrão: `gpt-3.5-turbo`
+- Suporte nativo a function calling
+- Integração avançada com ferramentas
+
+**Fluxo de Validação:**
+```python
+# Exemplo do código de validação
+config = load_config()
+if llm_provider == 'google' and not config.get('GOOGLE_API_KEY'):
+    click.echo("Error: GOOGLE_API_KEY not configured...")
+elif llm_provider == 'openai' and not config.get('OPENAI_API_KEY'):
+    click.echo("Error: OPENAI_API_KEY not configured...")
+```
 
 ### 🔍 Verificando Configuração
 ```bash

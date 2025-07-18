@@ -58,23 +58,46 @@ Comece a usar o MANGABA em poucos passos:
 
 Configure suas chaves de API para desbloquear todo o potencial do MANGABA:
 
-### 🔑 Obtendo Chaves de API
+### Configuração das APIs
 
-#### Google Gemini (Recomendado - Gratuito)
-1. Acesse [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Clique em "Create API Key"
-3. Copie sua chave e configure:
-   ```bash
-   python -m src.main config set GOOGLE_API_KEY sua_chave_aqui
-   ```
+O sistema utiliza um arquivo de configuração JSON localizado em `~/.mangaba/config.json` para armazenar as chaves das APIs de forma segura.
 
-#### OpenAI (Pago)
-1. Acesse [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Crie uma nova chave de API
-3. Configure:
-   ```bash
-   python -m src.main config set OPENAI_API_KEY sua_chave_aqui
-   ```
+#### Google Gemini API
+1. **Obter a chave:** Acesse [Google AI Studio](https://makersuite.google.com/app/apikey) e crie uma nova chave de API
+2. **Configurar no sistema:**
+```bash
+python -m src.main config set GOOGLE_API_KEY sua_chave_aqui
+```
+3. **Verificar configuração:**
+```bash
+python -m src.main config get GOOGLE_API_KEY
+```
+
+#### OpenAI API
+1. **Obter a chave:** Acesse [OpenAI API Keys](https://platform.openai.com/api-keys) e crie uma nova chave de API
+2. **Configurar no sistema:**
+```bash
+python -m src.main config set OPENAI_API_KEY sua_chave_aqui
+```
+3. **Verificar configuração:**
+```bash
+python -m src.main config get OPENAI_API_KEY
+```
+
+#### Validação Automática
+O sistema valida automaticamente as chaves de API antes da execução das tarefas:
+- ✅ Verifica se a chave está configurada para o provedor selecionado
+- ✅ Exibe mensagens de erro claras se a configuração estiver ausente
+- ✅ Suporta múltiplos provedores simultaneamente
+
+#### Estrutura do Arquivo de Configuração
+O arquivo `~/.mangaba/config.json` terá o formato:
+```json
+{
+  "GOOGLE_API_KEY": "sua_chave_google_aqui",
+  "OPENAI_API_KEY": "sua_chave_openai_aqui"
+}
+```
 
 ### ✅ Verificando Configuração
 ```bash
