@@ -181,6 +181,9 @@ python -m src.main run <nome_da_tarefa> --verbose
 ✅ **Funcionalidades Totalmente Implementadas**:
 - Interface CLI baseada em Click
 - Gerenciamento de agentes e tarefas
-- Integração com Google Gemini com chamada de função
-- Integração com OpenAI GPT com chamada de função
--
+- **Integração com Google Gemini com chamada de função**
+- **Integração com OpenAI GPT com chamada de função**
+- **Sistema de ferramentas extensível (Python, Shell, FileSystem, WebSearch)**
+- **Modo verbose para debugging detalhado**
+- **Configuração simples via CLI**
+- **Arquitetura modular e extensível**
