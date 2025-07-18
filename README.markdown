@@ -40,7 +40,7 @@ Comece a usar o MANGABA em poucos passos:
 
 1. **Clonar o Repositório**:
    ```bash
-   git clone https://github.com/your-repo/open-mangaba-cli.git
+   git clone https://github.com/Mangaba-ai/open-mangaba-cli.git
    cd open-mangaba-cli
    ```
 
@@ -58,15 +58,32 @@ Comece a usar o MANGABA em poucos passos:
 
 Configure suas chaves de API para desbloquear todo o potencial do MANGABA:
 
-- **Google Gemini**:
-  ```bash
-  python -m src.main config set GOOGLE_API_KEY <sua_chave_api_google>
-  ```
+### 🔑 Obtendo Chaves de API
 
-- **OpenAI**:
-  ```bash
-  python -m src.main config set OPENAI_API_KEY <sua_chave_api_openai>
-  ```
+#### Google Gemini (Recomendado - Gratuito)
+1. Acesse [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Clique em "Create API Key"
+3. Copie sua chave e configure:
+   ```bash
+   python -m src.main config set GOOGLE_API_KEY sua_chave_aqui
+   ```
+
+#### OpenAI (Pago)
+1. Acesse [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Crie uma nova chave de API
+3. Configure:
+   ```bash
+   python -m src.main config set OPENAI_API_KEY sua_chave_aqui
+   ```
+
+### ✅ Verificando Configuração
+```bash
+# Verificar se a chave foi configurada
+python -m src.main config get GOOGLE_API_KEY
+
+# Listar todas as configurações
+python -m src.main config list
+```
 
 ## 🛠️ Uso
 
@@ -79,7 +96,7 @@ Configure suas chaves de API para desbloquear todo o potencial do MANGABA:
   Siga as instruções para especificar o nome do agente e o provedor de MPH (ex.: `google`, `openai`).
 
 - **Listar Agentes**:
-  ```barn
+  ```bash
   python -m src.main agent list
   ```
 
