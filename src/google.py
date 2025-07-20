@@ -6,7 +6,7 @@ import json
 class Google(LLM):
     """A class for interacting with Google's Generative AI."""
 
-    def __init__(self, tools=None, verbose=False):
+    def __init__(self, tools=None, verbose=False, project_root=None):
         config = load_config()
         api_key = config.get('GOOGLE_API_KEY')
         if not api_key:
@@ -14,6 +14,7 @@ class Google(LLM):
         genai.configure(api_key=api_key)
         self.tools = tools or []
         self.verbose = verbose
+        self.project_root = project_root
         
         # Initialize model - simplified approach without function calling for now
         self.model = genai.GenerativeModel('gemini-2.5-flash')
@@ -54,7 +55,16 @@ Se não precisar usar ferramentas, responda normalmente."""
         if matches:
             for tool_name, params_str in matches:
                 try:
-                    params = json.loads(params_str)
+                    try:
+                        params = json.loads(params_str)
+                    except json.JSONDecodeError as e:
+                        if 'Unterminated string' in str(e) or 'Invalid control character' in str(e):
+                            # Try to fix the string by escaping newlines and re-parsing
+                            fixed_params_str = params_str.replace('\n', '\\n')
+                            params = json.loads(fixed_params_str)
+                        else:
+                            raise # Re-raise other JSON errors
+
                     tool_result = self._execute_tool(tool_name, params)
                     
                     # Replace the tool call with the result in the response
@@ -78,6 +88,17 @@ Se não precisar usar ferramentas, responda normalmente."""
             current_tool_name = getattr(tool, 'name', str(tool.__class__.__name__))
             if current_tool_name == tool_name:
                 if hasattr(tool, 'use'):
+                    # If it's the python tool, inject the working directory
+                    if tool_name == 'python':
+                        # The 'python' tool expects a 'code' parameter and an optional 'working_directory'
+                        code_to_execute = params.get('code')
+                        if code_to_execute:
+                            tool_params = {'code': code_to_execute}
+                            if self.project_root:
+                                tool_params['working_directory'] = self.project_root
+                            return tool.use(**tool_params)
+                        else:
+                            return 'Error: code parameter not found for python tool.'
                     return tool.use(**params)
                 elif hasattr(tool, 'execute'):
                     return tool.execute(**params)
@@ -98,8 +119,9 @@ Se não precisar usar ferramentas, responda normalmente."""
             response = self.model.generate_content(enhanced_prompt, **kwargs)
             
             # Process the response and execute any tool commands found
-            if response.text:
-                return self._process_response_with_tools(response.text, prompt)
+            response_text = "".join([part.text for part in response.parts])
+            if response_text:
+                return self._process_response_with_tools(response_text, prompt)
             
             return response
             

@@ -6,5 +6,14 @@
     "ultimas_noticias_gemini": {
         "agent": "meu_agente",
         "prompt": "Use a ferramenta web_search para encontrar as últimas notícias sobre Gemini AI e resuma-as."
+    },
+    "add-calculator-tool": {
+        "agent": "dev-agent",
+        "prompt": "Você é um desenvolvedor de software. Sua tarefa é adicionar uma nova ferramenta de calculadora ao open-mangaba-cli. Você deve: 1. Criar uma nova classe 'CalculatorTool' em 'src/tools.py' que possa avaliar expressões matemáticas. 2. Integrar esta nova ferramenta em 'src/main.py' para que ela esteja disponível para todos os agentes. 3. Criar uma nova tarefa chamada 'test-calculator' que use a nova ferramenta para calcular '1024 * 7'. 4. Executar a tarefa 'test-calculator' para validar sua implementação e me mostrar o resultado final."
+    },
+    "projectile-trajectory": {
+        "agent": "physics-agent",
+        "prompt": "Você é um físico. Sua tarefa é calcular a trajetória de um projétil. Use as seguintes variáveis: velocidade inicial = 100 m/s, ângulo de lançamento = 45 graus, gravidade = 9.8 m/s^2. Calcule o alcance máximo e a altura máxima e salve o resultado no arquivo 'trajectory_results.txt'. Gere apenas o código Python para fazer isso.",
+         "expected_output": "O arquivo trajectory_results.txt deve ser criado com o resultado do cálculo, contendo o alcance máximo e a altura máxima."
     }
 }

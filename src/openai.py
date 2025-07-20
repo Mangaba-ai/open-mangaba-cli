@@ -6,7 +6,7 @@ import json
 class OpenAI(LLM):
     """A class for interacting with OpenAI's API."""
 
-    def __init__(self, tools=None, verbose=False):
+    def __init__(self, tools=None, verbose=False, project_root=None):
         config = load_config()
         api_key = config.get('OPENAI_API_KEY')
         if not api_key:
@@ -14,6 +14,7 @@ class OpenAI(LLM):
         self.client = OpenAIClient(api_key=api_key)
         self.tools = tools or []
         self.verbose = verbose
+        self.project_root = project_root
         self.tool_functions = self._prepare_tool_functions()
 
     def _prepare_tool_functions(self):
@@ -123,7 +124,10 @@ class OpenAI(LLM):
         for tool in self.tools:
             if tool.name == function_name:
                 if function_name == "python":
-                    tool_result = tool.use(code=function_args.get('code', ''))
+                    python_params = {'code': function_args.get('code', '')}
+                    if self.project_root:
+                        python_params['working_directory'] = self.project_root
+                    tool_result = tool.use(**python_params)
                 elif function_name == "shell":
                     tool_result = tool.use(command=function_args.get('command', ''))
                 elif function_name == "filesystem":

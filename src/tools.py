@@ -23,12 +23,12 @@ class PythonTool(Tool):
     def __init__(self, verbose=False):
         super().__init__('python', 'Execute Python code', verbose=verbose)
 
-    def use(self, code):
+    def use(self, code, working_directory='.'):
         """Execute the given Python code."""
         if self.verbose:
-            click.echo(f"[PythonTool] Executing Python code:\n---\n{code}\n---")
+            click.echo(f"[PythonTool] Executing Python code in '{working_directory}':\n---\n{code}\n---")
         try:
-            output = subprocess.check_output(['python', '-c', code], stderr=subprocess.STDOUT)
+            output = subprocess.check_output(['python', '-c', code], stderr=subprocess.STDOUT, cwd=working_directory)
             decoded_output = output.decode('utf-8')
             if self.verbose:
                 click.echo(f"[PythonTool] Output:\n---\n{decoded_output}\n---")
@@ -115,6 +115,31 @@ class FileSystemTool(Tool):
         except Exception as e:
             if self.verbose:
                 click.echo(f"[FileSystemTool] Error listing directory '{path}': {e}")
+            return str(e)
+
+class CalculatorTool(Tool):
+    """A tool for evaluating mathematical expressions."""
+
+    def __init__(self, verbose=False):
+        super().__init__('calculator', 'Evaluate a mathematical expression', verbose=verbose)
+
+    def use(self, expression):
+        """Evaluate the given mathematical expression."""
+        if self.verbose:
+            click.echo(f"[CalculatorTool] Evaluating expression: {expression}")
+        try:
+            # Sanitize the expression to prevent security risks
+            allowed_chars = "0123456789+-*/(). "
+            if not all(c in allowed_chars for c in expression):
+                raise ValueError("Invalid characters in expression")
+            
+            result = eval(expression)
+            if self.verbose:
+                click.echo(f"[CalculatorTool] Result: {result}")
+            return str(result)
+        except Exception as e:
+            if self.verbose:
+                click.echo(f"[CalculatorTool] Error evaluating expression: {e}")
             return str(e)
 
 class WebSearchTool(Tool):

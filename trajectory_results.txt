@@ -1,0 +1,2 @@
+USE_TOOL: python
+PARAMS: {"code": "import math\n\nv0 = 100  # m/s\ntheta_degrees = 45  # degrees\ng = 9.8  # m/s^2\n\n# Convert angle to radians\ntheta_radians = math.radians(theta_degrees)\n\n# Calculate Maximum Height\nH_max = (v0**2 * (math.sin(theta_radians))**2) / (2 * g)\n\n# Calculate Maximum Range\nR_max = (v0**2 * math.sin(2 * theta_radians)) / g\n\nprint(f\"Altura Máxima: {H_max:.2f} metros\")\nprint(f\"Alcance Máximo: {R_max:.2f} metros\")"}

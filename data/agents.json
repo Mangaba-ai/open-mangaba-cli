@@ -6,5 +6,24 @@
     "meu_agente": {
         "llm_provider": "google",
         "tools": []
+    },
+    "dev-agent": {
+        "llm_provider": "google",
+        "tools": [
+            "python",
+            "shell",
+            "filesystem",
+            "web_search",
+            "calculator"
+        ]
+    },
+    "physics-agent": {
+        "llm_provider": "google",
+        "tools": [
+            "python",
+            "web_search",
+            "calculator",
+            "filesystem"
+        ]
     }
 }

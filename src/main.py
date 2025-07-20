@@ -4,7 +4,7 @@ import os
 import sys
 from .config import load_config, save_config
 from .agents import create_agent
-from .tools import PythonTool, ShellTool, FileSystemTool, WebSearchTool
+from .tools import PythonTool, ShellTool, FileSystemTool, WebSearchTool, CalculatorTool
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 AGENTS_FILE = os.path.join(DATA_DIR, 'agents.json')
@@ -39,6 +39,24 @@ def save_data(data, file_path):
         click.echo(f"Error saving to {file_path}: {e}", err=True)
         return False
     return True
+
+def create_tools(tool_names, verbose=False):
+    """Create a list of tools from a list of tool names."""
+    tools = []
+    if not tool_names:
+        return tools
+
+    if 'python' in tool_names:
+        tools.append(PythonTool(verbose=verbose))
+    if 'shell' in tool_names:
+        tools.append(ShellTool(verbose=verbose))
+    if 'filesystem' in tool_names:
+        tools.append(FileSystemTool(verbose=verbose))
+    if 'web_search' in tool_names:
+        tools.append(WebSearchTool(verbose=verbose))
+    if 'calculator' in tool_names:
+        tools.append(CalculatorTool(verbose=verbose))
+    return tools
 
 @click.group()
 def cli():
@@ -109,6 +127,26 @@ def delete(name):
     click.echo(f"Agent {name} deleted successfully.")
 
 @agent.command()
+@click.argument('name')
+@click.argument('tool_name')
+def add_tool(name, tool_name):
+    """Add a tool to an agent."""
+    agents = load_data(AGENTS_FILE)
+    if name not in agents:
+        click.echo(f"Agent {name} not found.")
+        return
+
+    if 'tools' not in agents[name]:
+        agents[name]['tools'] = []
+
+    if tool_name not in agents[name]['tools']:
+        agents[name]['tools'].append(tool_name)
+        save_data(agents, AGENTS_FILE)
+        click.echo(f"Tool {tool_name} added to agent {name}.")
+    else:
+        click.echo(f"Tool {tool_name} already exists for agent {name}.")
+
+@agent.command()
 def list():
     """List all agents."""
     agents = load_data(AGENTS_FILE)
@@ -162,7 +200,8 @@ def list():
 @cli.command()
 @click.argument('task_name')
 @click.option('--verbose', is_flag=True, help='Enable verbose output for tool execution.')
-def run(task_name, verbose):
+@click.option('--steps', default=1, help='Number of steps to run the task.')
+def run(task_name, verbose, steps):
     """Run a task."""
     try:
         # Load and validate task
@@ -221,26 +260,36 @@ def run(task_name, verbose):
             click.echo("-" * 50)
 
         # Create tools and agent
-        tools = [
-            PythonTool(verbose=verbose), 
-            ShellTool(verbose=verbose), 
-            FileSystemTool(verbose=verbose), 
-            WebSearchTool(verbose=verbose)
-        ]
+        tool_names = agent_data.get('tools', [])
+        tools = create_tools(tool_names, verbose=verbose)
+
+        project_root = os.path.abspath(os.path.join(DATA_DIR, '..'))
+        agent = create_agent(llm_provider, tools=tools, verbose=verbose, project_root=project_root)
         
-        agent = create_agent(llm_provider, tools=tools, verbose=verbose)
-        
-        # Execute task
-        response = agent.complete(prompt)
-        
-        # Handle response based on type
-        if hasattr(response, 'text'):
-            click.echo(response.text)
-        elif hasattr(response, 'content'):
-            click.echo(response.content)
-        else:
-            click.echo(str(response))
+        # Execute task in a loop for the number of steps
+        last_response = ""
+        for i in range(steps):
+            click.echo(f"--- Step {i+1}/{steps} ---")
             
+            # Combine original prompt with the last response to maintain context
+            current_prompt = f"{prompt}\n\nPrevious step's result:\n{last_response}"
+            response = agent.complete(current_prompt)
+            
+            # Handle response based on type
+            if hasattr(response, 'text'):
+                response_text = response.text
+                click.echo(response_text)
+            elif hasattr(response, 'content'):
+                response_text = response.content
+                click.echo(response_text)
+            else:
+                response_text = str(response)
+                click.echo(response_text)
+            
+            # Update last_response for the next step
+            last_response = response_text
+
+
     except ValueError as e:
         click.echo(f"Configuration error: {e}", err=True)
         sys.exit(1)
@@ -252,11 +301,17 @@ def run(task_name, verbose):
         click.echo("\nTask execution interrupted by user.", err=True)
         sys.exit(1)
     except Exception as e:
-        click.echo(f"An unexpected error occurred: {e}", err=True)
-        if verbose:
-            import traceback
-            click.echo("Full traceback:")
-            click.echo(traceback.format_exc())
+        error_message = f"An unexpected error occurred: {e}"
+        click.echo(error_message, err=True)
+        with open("error.log", "w", encoding='utf-8') as f:
+            f.write(error_message + "\n")
+            if verbose:
+                import traceback
+                tb_str = traceback.format_exc()
+                click.echo("Full traceback:")
+                click.echo(tb_str)
+                f.write("Full traceback:\n")
+                f.write(tb_str)
         sys.exit(1)
 
 if __name__ == '__main__':
